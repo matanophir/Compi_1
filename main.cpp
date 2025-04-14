@@ -13,16 +13,23 @@ int main() {
         // your code here
         switch (token)
         {
-        case STRING: {
+        case STRING:
+        {
+            string raw(yytext);
             string parsed;
-            string str(yytext);
 
-            for (size_t i = 1; i < str.length() - 1; i++)
-            { // skip first and last "
-                if (str[i] == '\\')
+            // Remove the quotes
+            for (size_t i = 1; i < raw.length() - 1; i++)
+            {
+                if (raw[i] == '\\')
                 {
-                    i++; // look at next char
-                    switch (str[i])
+                    i++;
+                    if (i >= raw.length() - 1)
+                    { // string ends with backslash
+                        output::errorUnknownChar('\\');
+                    }
+
+                    switch (raw[i])
                     {
                     case 'n':
                         parsed += '\n';
@@ -42,22 +49,46 @@ int main() {
                     case '\"':
                         parsed += '\"';
                         break;
+
                     case 'x':
                     {
-                        string hex = str.substr(i + 1, 2);
-                        char c = (char)stoi(hex, nullptr, 16);
-                        parsed += c;
-                        i += 2; // skip the 2 hex digits
+                        string hexDigits;
+                        if (i + 2 >= raw.length() - 1)
+                        {                                  // Not enough chars for 2 hex
+                            hexDigits = raw.substr(i - 1); // include \x
+                            output::errorUndefinedEscape(hexDigits.c_str());
+                        }
+                        if (isxdigit(raw[i + 1]) && isxdigit(raw[i + 2]))
+                        {
+                            hexDigits = raw.substr(i + 1, 2);
+                            char c = (char)stoi(hexDigits, nullptr, 16);
+                            parsed += c;
+                            i += 2; // skip hex digits
+                        }
+                        else
+                        {
+                            hexDigits = raw.substr(i - 1, 3); // \x + bad char(s)
+                            output::errorUndefinedEscape(hexDigits.c_str());
+                        }
                         break;
                     }
+
                     default:
-                        cout << "Unknown escape sequence: \\" << str[i] << endl;
-                        parsed += str[i]; // shouldn't happen
+                    {
+                        output::errorUndefinedEscape(string(1,raw[i]).c_str());
+                    }
                     }
                 }
                 else
                 {
-                    parsed += str[i];
+                    if (raw[i] >= 0x20 && raw[i] <= 0x7E)
+                    { // printable ASCII
+                        parsed += raw[i];
+                    }
+                    else
+                    {
+                        output::errorUnknownChar(raw[i]);
+                    }
                 }
             }
 
