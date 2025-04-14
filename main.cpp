@@ -54,8 +54,8 @@ int main() {
                     {
                         string hexDigits;
                         if (i + 2 >= raw.length() - 1)
-                        {                                  // Not enough chars for 2 hex
-                            hexDigits = raw.substr(i - 1); // include \x
+                        {   // Not enough chars for 2 hex
+                            hexDigits = raw.substr(i, raw.length() - i - 1); 
                             output::errorUndefinedEscape(hexDigits.c_str());
                         }
                         if (isxdigit(raw[i + 1]) && isxdigit(raw[i + 2]))
@@ -67,7 +67,7 @@ int main() {
                         }
                         else
                         {
-                            hexDigits = raw.substr(i - 1, 3); // \x + bad char(s)
+                            hexDigits = raw.substr(i, 3); // x + bad char(s)
                             output::errorUndefinedEscape(hexDigits.c_str());
                         }
                         break;

@@ -54,7 +54,7 @@ COMMENT      \/\/[^\r\n]*
 {ID}             { return ID; }
 \"([^\"\n]*)\" { return STRING; }
 
-\"([^\"\n]*)\n  { output::errorUnclosedString(); }
+\"([^\"\n]*)(\n)?  { output::errorUnclosedString(); }
 .                 { output::errorUnknownChar(yytext[0]); }
 
 %%
