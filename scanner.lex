@@ -52,9 +52,8 @@ COMMENT      \/\/[^\r\n]*
 {NUM_B}          { return NUM_B; }
 {NUM}            { return NUM; }
 {ID}             { return ID; }
-\"([^\"\n]*)\" { return STRING; }
-
-\"([^\"\n]*)(\n)?  { output::errorUnclosedString(); }
+\"([^\"\n]|\\\")*\"  { return STRING; }
+\"(([^\"\n]|\\\")*)(\n)?  { output::errorUnclosedString(); }
 .                 { output::errorUnknownChar(yytext[0]); }
 
 %%

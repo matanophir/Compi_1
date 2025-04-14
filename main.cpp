@@ -5,6 +5,10 @@
 
 using namespace std;
 
+bool is_printable(char c) {
+    return (c >= 0x20 && c <= 0x7E);
+}
+
 int main() {
     enum tokentype token;
 
@@ -62,7 +66,14 @@ int main() {
                         {
                             hexDigits = raw.substr(i + 1, 2);
                             char c = (char)stoi(hexDigits, nullptr, 16);
-                            parsed += c;
+                            if (is_printable(c))
+                            {
+                                parsed += c;
+                            }
+                            else
+                            {
+                                output::errorUndefinedEscape(("x"+hexDigits).c_str());
+                            }
                             i += 2; // skip hex digits
                         }
                         else
@@ -81,7 +92,7 @@ int main() {
                 }
                 else
                 {
-                    if (raw[i] >= 0x20 && raw[i] <= 0x7E)
+                    if (is_printable(raw[i]))
                     { // printable ASCII
                         parsed += raw[i];
                     }
