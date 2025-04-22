@@ -1,0 +1,5 @@
+hw1
+lex.yy.c
+*.zip
+hw1-MyTests
+run_tests.sh

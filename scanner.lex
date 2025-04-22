@@ -1,23 +1,26 @@
 %{
 #include "tokens.hpp"
 #include "output.hpp"
+#include <iostream>
+using namespace std;
 %}
 
 %option noyywrap
 %option yylineno
 
 
-DIGIT        [0-9]
-LETTER       [a-zA-Z]
-ID           {LETTER}({LETTER}|{DIGIT})*
-NUM          0|([1-9]{DIGIT}*)
-NUM_B        {NUM}b
-WHITESPACE   [ \t\r\n]
-COMMENT      \/\/[^\r\n]*
+digit        [0-9]
+letter       [a-zA-Z]
+id           {letter}({letter}|{digit})*
+num          0|([1-9]{digit}*)
+num_b        {num}b
+whitespace   [ \t\r\n]
+comment      \/\/[^\r\n]*
+string_content (([^\\\"\n\r])|(\\([\\\"nrt0]))|(\\.))*
 
 %%
 
-{WHITESPACE}     { /* skip */ }
+{whitespace}     { /* skip */ }
 
 "void"           { return VOID; }
 "int"            { return INT; }
@@ -47,13 +50,15 @@ COMMENT      \/\/[^\r\n]*
 "=="|"!="|"<="|">="|"<"|">" { return RELOP; }
 "+"|"-"|"*"|"/"  { return BINOP; }
 
-{COMMENT}        { return COMMENT; }
+{comment}        { return COMMENT; }
 
-{NUM_B}          { return NUM_B; }
-{NUM}            { return NUM; }
-{ID}             { return ID; }
-\"([^\"\n]|\\\")*\"  { return STRING; }
-\"(([^\"\n]|\\\")*)(\n)?  { output::errorUnclosedString(); }
+{num_b}          { return NUM_B; }
+{num}            { return NUM; }
+{id}             { return ID; }
+
+\"{string_content}\" { return STRING; }
+\"{string_content}  { output::errorUnclosedString(); }
+
 .                 { output::errorUnknownChar(yytext[0]); }
 
 %%

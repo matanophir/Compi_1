@@ -6,7 +6,7 @@
 using namespace std;
 
 bool is_printable(char c) {
-    return (c >= 0x20 && c <= 0x7E);
+    return ((c >= 0x20 && c <= 0x7E) || c == '\n' || c == '\r' || c == '\t');
 }
 
 int main() {
@@ -98,6 +98,8 @@ int main() {
                     }
                     else
                     {
+                        cout << "in main" << endl;
+
                         output::errorUnknownChar(raw[i]);
                     }
                 }
